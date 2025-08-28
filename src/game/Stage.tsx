@@ -104,7 +104,7 @@ export default function Stage({
         const hRatio = hostH / tex.height;
         const minScale = fit === 'cover' ? Math.max(wRatio, hRatio) : Math.min(wRatio, hRatio);
 
-        viewport.clampZoom({ minScale, maxScale: minScale * 4 });
+        viewport.clampZoom({ minScale, maxScale: minScale * 10 });
 
         // Si por resize quedamos por debajo del mínimo, subimos
         if (viewport.scale.x < minScale) {
@@ -212,8 +212,8 @@ export default function Stage({
   return (
     <div
       ref={hostRef}
-      className="absolute inset-0"
-      style={{ left: leftOffset }}
+      className="absolute inset-0 touch-none"
+      style={{ left: leftOffset, overflow: 'hidden' }} // <- ocultar desbordes
     />
   );
 }

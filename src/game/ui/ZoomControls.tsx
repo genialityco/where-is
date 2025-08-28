@@ -1,5 +1,5 @@
 // src/game/ui/ZoomControls.tsx
-type Props = { onIn: () => void; onOut: () => void };
+/*type Props = { onIn: () => void; onOut: () => void };
 
 export default function ZoomControls({ onIn, onOut }: Props) {
   return (
@@ -16,4 +16,28 @@ export default function ZoomControls({ onIn, onOut }: Props) {
       >−</button>
     </div>
   );
+}*/
+
+type Props = { onIn: () => void; onOut: () => void };
+
+export default function ZoomControls({ onIn, onOut }: Props) {
+  return (
+    <div className="fixed right-3 bottom-3 z-50 flex flex-col gap-2 pointer-events-auto">
+      <button
+        aria-label="Acercar"
+        onClick={(e) => { e.stopPropagation(); onIn(); }}
+        className="h-10 w-10 rounded-full bg-white shadow grid place-items-center text-xl"
+      >
+        +
+      </button>
+      <button
+        aria-label="Alejar"
+        onClick={(e) => { e.stopPropagation(); onOut(); }} 
+        className="h-10 w-10 rounded-full bg-white shadow grid place-items-center text-xl"
+      >
+        –
+      </button>
+    </div>
+  );
 }
+

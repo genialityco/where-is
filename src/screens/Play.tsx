@@ -8,7 +8,7 @@ import Sidebar from "../game/ui/Sidebar";
 import Countdown from "../game/ui/Countdown";
 import FoundModal from "../game/ui/FoundModal";
 import EndModal from "../game/ui/EndModal";
-import { saveEntry } from '../services/leaderboard';
+import { saveEntry } from "../services/leaderboard";
 import type { Viewport } from "pixi-viewport";
 
 export type Rect = { x: number; y: number; w: number; h: number };
@@ -71,10 +71,9 @@ export default function Play() {
   const [endOpen, setEndOpen] = useState(false);
   const [endTitle, setEndTitle] = useState("¡Encontraste a todos!");
   const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS); // segundos restantes
-  const timeText = `${String(Math.floor(timeLeft / 60)).padStart(
-    2,
-    "0"
-  )}:${String(timeLeft % 60).padStart(2, "0")}`;
+  const timeText = `${String(Math.floor(timeLeft / 60)).padStart(2, "0")}:${String(
+    timeLeft % 60
+  ).padStart(2, "0")}`;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -85,13 +84,30 @@ export default function Play() {
     vpRef.current = vp;
   }, []);
 
-  // zoom (pasos más notorios)
-  const zoomIn = useCallback(() => {
-    vpRef.current?.zoom(1.35, true);
+  // ---------- ZOOM: saltos claros y respetando clamp-zoom ----------
+  const zoomBy = useCallback((factor: number) => {
+    const vp = vpRef.current as any;
+    if (!vp) return;
+
+    // límites actuales del clamp-zoom (si existe)
+    const cz = vp.plugins?.get?.("clamp-zoom")?.options ?? {};
+    const min = typeof cz.minScale === "number" ? cz.minScale : 0.05;
+    const max = typeof cz.maxScale === "number" ? cz.maxScale : 20;
+
+    const current = (vp as Viewport).scale.x;
+    const target = Math.max(min, Math.min(max, current * factor));
+
+    // centro de foco: último gesto (wheel/touch) o centro de pantalla
+    const focus =
+      vp.input?.last?.world ??
+      (vp as Viewport).toWorld((vp as Viewport).screenWidth / 2, (vp as Viewport).screenHeight / 2);
+
+    (vp as Viewport).setZoom(target, focus);
   }, []);
-  const zoomOut = useCallback(() => {
-    vpRef.current?.zoom(1 / 1.35, true);
-  }, []);
+
+  const zoomIn = useCallback(() => zoomBy(2), [zoomBy]);      // acerca x2
+  const zoomOut = useCallback(() => zoomBy(1 / 2), [zoomBy]); // aleja ÷2
+  // ----------------------------------------------------------------
 
   // click actor (memoizado)
   const handleHitActor = useCallback((id: string) => {
@@ -126,7 +142,6 @@ export default function Play() {
 
   // 👉 Guardar marca y navegar al ranking (resaltando la última)
   const continueToRanking = useCallback(() => {
-    // tiempo transcurrido en ms
     const elapsedMs = (TOTAL_SECONDS - Math.max(0, timeLeft)) * 1000;
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
