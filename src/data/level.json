@@ -1,0 +1,101 @@
+{
+  "background": { "src": "/bg/buk-campus@2x.jpg" },
+  "targets": [
+    {
+      "id": "administracion",
+      "name": "Jefe de Administración",
+      "sprite": "/chars/Jefe-1-Administracion.png",
+      "icon": "/chars/Jefe-1-Administracion.png",
+      "positions": [
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 1309, "y": 142, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 999, "y": 528, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 342, "y": 844, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 1826, "y": 412, "w": 26, "h": 39 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "desarrollo-organizacional",
+      "name": "Jefe de Desarrollo Organizacional",
+      "sprite": "/chars/Jefe-2.png",
+      "icon": "/chars/Jefe-2.png",
+      "positions": [
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 1355, "y": 384, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 1423, "y": 907, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 405, "y": 113, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 477, "y": 245, "w": 26, "h": 39 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "beneficios",
+      "name": "Jefe de Beneficios",
+      "sprite": "/chars/Jefe-3-Beneficios.png",
+      "icon": "/chars/Jefe-3-Beneficios.png",
+      "positions": [
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 177, "y": 1055, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 1241, "y": 923, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 459, "y": 681, "w": 26, "h": 39 }
+          }
+        },
+        {
+          "hitbox": {
+            "type": "rect",
+            "rect": { "x": 420, "y": 478, "w": 26, "h": 39 }
+          }
+        }
+      ]
+    }
+  ]
+}

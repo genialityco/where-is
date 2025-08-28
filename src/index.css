@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body { margin: 0; overflow: hidden; background: #fff; }
+  canvas { border-radius: 0 !important; display: block; }
+}
