@@ -4,8 +4,9 @@
     {
       "id": "administracion",
       "name": "Jefe de Administración",
-      "sprite": "/chars/Jefe-1-Administracion.png",
-      "icon": "/chars/Jefe-1-Administracion.png",
+      "sprite": "/chars/Jefe_administracion_1.png",
+      "icon": "/chars/Jefe_administracion_1.png",
+      "panel": "/chars/JEFE_administracion_MENSAJES_1.png",
       "positions": [
         {
           "hitbox": {
@@ -36,8 +37,9 @@
     {
       "id": "desarrollo-organizacional",
       "name": "Jefe de Desarrollo Organizacional",
-      "sprite": "/chars/Jefe-2.png",
-      "icon": "/chars/Jefe-2.png",
+      "sprite": "/chars/Jefe_desarrollo_organizacional_1.png",
+      "icon": "/chars/Jefe_desarrollo_organizacional_1.png",
+      "panel": "/chars/JEFE_desarrollo_MENSAJES_1.png",
       "positions": [
         {
           "hitbox": {
@@ -68,8 +70,9 @@
     {
       "id": "beneficios",
       "name": "Jefe de Beneficios",
-      "sprite": "/chars/Jefe-3-Beneficios.png",
-      "icon": "/chars/Jefe-3-Beneficios.png",
+      "sprite": "/chars/Jefe_Beneficios_1.png",
+      "icon": "/chars/Jefe_Beneficios_1.png",
+      "panel": "/chars/JEFE_01_beneficios_MENSAJES.png",
       "positions": [
         {
           "hitbox": {

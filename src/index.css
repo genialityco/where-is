@@ -3,7 +3,20 @@
 @tailwind utilities;
 
 @layer base {
-  html, body, #root { height: 100%; }
-  body { margin: 0; overflow: hidden; background: #fff; }
-  canvas { border-radius: 0 !important; display: block; }
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* evita scrollbars del giro */
+  }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #fff;
+  }
+  canvas {
+    border-radius: 0 !important;
+    display: block;
+  }
 }
