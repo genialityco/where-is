@@ -39,7 +39,7 @@ export default function Register() {
     () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()),
     [form.email]
   );
-  const canStart = form.name.trim() !== "" && emailOk && form.consent;
+  //const canStart = form.name.trim() !== "" && emailOk && form.consent;
   const almostReady = form.name.trim() !== "" && emailOk; // falta solo el consentimiento
 
   function update<K extends keyof Form>(key: K, v: Form[K]) {
