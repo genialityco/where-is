@@ -36,7 +36,7 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
     }
   }, [open, visible]);
 
-  // cerrar con Escape (el hook SIEMPRE se ejecuta; el if está DENTRO del efecto)
+  // cerrar con Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!visible) return;
@@ -53,7 +53,6 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
     setTimeout(() => onClose(), 420);
   };
 
-  // 👇 el return condicional VA DESPUÉS de TODOS los hooks
   if (!visible) return null;
 
   return (
@@ -68,7 +67,7 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
 
       {/* Contenido con scale/translate al entrar/salir */}
       <div
-        className={`relative z-10 mx-4 w-full max-w-[980px] transition-all duration-400
+        className={`relative z-10 mx-4 w-full max-w-[980px] lg:max-w-[1100px] transition-all duration-400
                     ${entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[.96] translate-y-2"}`}
         aria-label={`Encontraste a ${actorName ?? "el personaje"}`}
         role="dialog"
@@ -76,11 +75,12 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
       >
         <div className="relative mx-auto flex items-end justify-center gap-6 sm:gap-10 md:gap-12">
           {panelUrl && (
-            <div className="relative inline-block">
+            // 👇 Contenedor con animación continua (float + tilt + breathing)
+            <div className="relative inline-block idle-bounce">
               <img
                 src={panelUrl}
                 alt=""
-                className="w-[560px] sm:w-[640px] md:w-[720px] h-auto
+                className="w-[560px] sm:w-[640px] md:w-[720px] lg:w-[880px] xl:w-[960px] h-auto
                            drop-shadow-[0_24px_50px_rgba(0,0,0,.35)]
                            select-none pointer-events-none
                            origin-bottom animate-[popIn_.8s_.12s_cubic-bezier(.22,1,.36,1)_both]"
@@ -99,7 +99,8 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
                 >
                   <button
                     onClick={handleClose}
-                    className="px-8 sm:px-10 md:px-12 h-11 rounded-2xl bg-buk-500 text-white font-semibold text-[22px]
+                    className="px-8 sm:px-10 md:px-12 lg:px-14 h-11 lg:h-14
+                               rounded-2xl bg-buk-500 text-white font-semibold text-[22px] lg:text-[24px]
                                shadow-[0_8px_20px_rgba(47,77,170,.25)]
                                transition-transform duration-200
                                hover:scale-[1.02] active:scale-[0.98] focus:outline-none"
@@ -125,9 +126,26 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
           60%  { transform: translate(-50%, -4px) scale(1.03); opacity: 1 }
           100% { transform: translate(-50%, 0) scale(1) }
         }
+
+        /* 🔥 Idle continuo: bob + tilt + ligera respiración */
+        @keyframes floatAlive {
+          0%   { transform: translateY(0) rotate(0deg) scale(1) }
+          100% { transform: translateY(calc(var(--bob) * -1))
+                            rotate(var(--tilt))
+                            scale(var(--breath)) }
+        }
+        .idle-bounce {
+          --bob: clamp(36px, 5.6vw, 80px);     /* amplitud vertical */
+          --tilt: -0.6deg;                    /* inclinación sutil */
+          --breath: 1.012;                    /* “respiración” */
+          animation: floatAlive 2.2s 1s ease-in-out infinite alternate;
+          will-change: transform;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .animate-[popIn_.8s_.12s_cubic-bezier(.22,1,.36,1)_both] { animation: none !important; }
           .animate-[btnIn_.55s_cubic-bezier(.22,1,.36,1)_both] { animation: none !important; }
+          .idle-bounce { animation: none !important; }
         }
       `}</style>
     </div>

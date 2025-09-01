@@ -24,11 +24,10 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
       {/* Alto completo en columna */}
       <div className="h-full flex flex-col min-h-0">
 
-        {/* === JUGADORES === */}
-        <section className="basis-[60%] max-lg:basis-[60%] max-md:basis-[50%] max-[800px]:basis-[50%] shrink-0 flex flex-col min-h-0">
-          {/* Marco externo */}
+        {/* === JUGADORES (más compacto) === */}
+        <section className="basis-1/2 md:basis-[48%] max-[800px]:basis-[45%] shrink-0 flex flex-col min-h-0">
           <div className="flex-1 rounded-2xl border-2 border-black bg-[#ECEFF7] shadow-sm p-3 flex flex-col min-h-0">
-            {/* Placa contador (90% ancho y centrada) */}
+            {/* Placa contador */}
             <div
               className="w-[90%] mx-auto mb-3 rounded-lg border-2 border-black bg-white px-3 py-1
                          text-xs text-center font-semibold tracking-wide text-gray-800"
@@ -38,23 +37,24 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
               {label}
             </div>
 
-            {/* Tres tarjetas sin scroll */}
+            {/* Tres tarjetas compactas */}
             <div className="flex-1 flex flex-col justify-between items-stretch gap-3">
               {items.map((it) => (
                 <div
                   key={it.id}
-                  className="relative h-24 sm:h-28 w-full rounded-2xl bg-white grid place-items-center
+                  className="relative h-20 sm:h-22 md:h-24 w-full rounded-2xl bg-white grid place-items-center
                              ring-1 ring-black/10 shadow-sm"
                 >
                   {it.icon && (
                     <img
                       src={it.icon}
                       alt={it.name}
-                      className={`h-20 sm:h-24 w-auto object-contain select-none transition
+                      className={`h-16 sm:h-18 md:h-20 w-auto object-contain select-none transition
                                   ${it.found ? "grayscale opacity-70" : ""}`}
                       draggable={false}
                     />
                   )}
+
                   {/* Check cuando está encontrado */}
                   {it.found && (
                     <span
@@ -75,9 +75,9 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
           </div>
         </section>
 
-        {/* === LOGO === */}
+        {/* === LOGO (más protagonista) === */}
         <section
-          className="basis-[40%] max-lg:basis-[40%] max-md:basis-[50%] max-[800px]:basis-[50%]
+          className="basis-1/2 md:basis-[52%] max-[800px]:basis-[55%]
                      shrink-0 grid place-items-center mt-3 min-h-0"
         >
           {/* pointer-events-none: no captura toques/drag */}
@@ -85,7 +85,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
             <img
               src="/img/logo-buk-vertical.webp"
               alt="BUK"
-              className="max-h-[72%] md:max-h-[80%] w-auto object-contain select-none"
+              className="max-h-[88%] md:max-h-[92%] w-auto object-contain select-none"
               draggable={false}
             />
           </div>

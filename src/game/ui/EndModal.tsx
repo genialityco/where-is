@@ -114,32 +114,29 @@ export default function EndModal({
       {/* Diálogo */}
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div
-          className={`w-[min(82vw,820px)]     /* móviles: ocupa ~92% del ancho, máx. 820px */
-          sm:w-[min(58vw,820px)]
-          lg:w-[820px]            /* en desktop “normal”, fijo a 820px */
-          rounded-3xl shadow-2xl ring-1 ring-black/10 relative z-20
-          transition-all duration-500
-          ${
-            entered
-              ? "opacity-100 scale-100 translate-y-0"
-              : "opacity-0 scale-95 translate-y-2"
-          }`}
-          // fondo con degradé sutil como ref
+          className={`w-[min(94vw,640px)] sm:w-[min(82vw,720px)] lg:w-[min(74vw,860px)] xl:w-[920px]
+                      rounded-3xl shadow-2xl ring-1 ring-black/10 relative z-20
+                      transition-all duration-500
+                      ${
+                        entered
+                          ? "opacity-100 scale-100 translate-y-0"
+                          : "opacity-0 scale-95 translate-y-2"
+                      }`}
           style={{
             background:
               "linear-gradient(180deg, rgba(248,250,255,.95) 0%, rgba(255,255,255,.95) 60%, rgba(255,255,255,.95) 100%)",
           }}
         >
           {/* Título */}
-          <div className="px-8 pt-7 text-center">
-            <h2 className="text-[32px] sm:text-2xl font-extrabold text-buk-500">
+          <div className="px-8 pt-7 lg:px-15 lg:pt-12 text-center">
+            <h2 className="text-2xl sm:text-[28px] lg:text-[54px] font-extrabold text-buk-500">
               {title}
             </h2>
           </div>
 
-          {/* Participante / Tiempo (sin separadores visuales) */}
-          <div className="px-6 pt-5">
-            <div className="rounded-2xl bg-white/80 shadow-inner ring-1 ring-white/40 px-5 py-4">
+          {/* Participante / Tiempo */}
+          <div className="px-6 lg:px-8 pt-5 lg:pt-6">
+            <div className="rounded-2xl bg-white/80 shadow-inner ring-1 ring-white/40 px-5 lg:px-6 py-4 lg:py-5">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <MiniInfo label="Participante" value={player} />
                 <MiniInfo label="Tiempo" value={timeText} align="right" />
@@ -148,18 +145,17 @@ export default function EndModal({
           </div>
 
           {/* Mensaje personalizado */}
-          <div className="px-6 pt-4">
-            <div className="rounded-xl bg-white/70 shadow ring-1 ring-black/5 px-4 py-3 text-center text-gray-800">
-              Hola <span className="font-semibold">{player}</span>, tu tiempo es
-              de <span className="font-semibold">{timeText}</span> y quedaste en
-              el puesto <span className="font-extrabold">#{myRank ?? "—"}</span>
-              .
+          <div className="px-6 lg:px-8 pt-4">
+            <div className="rounded-xl bg-white/70 shadow ring-1 ring-black/5 px-4 lg:px-6 py-3 lg:py-4 text-center text-[22px] lg:text-[24px] text-gray-800">
+              Hola <span className="font-semibold">{player}</span>, tu tiempo es de{" "}
+              <span className="font-semibold">{timeText}</span> y quedaste en el puesto{" "}
+              <span className="font-extrabold">#{myRank ?? "—"}</span>.
             </div>
           </div>
 
           {/* RANKING Top-3 de la jornada */}
-          <div className="px-6 pt-5">
-            <div className="mb-5 text-center text-[22px] font-bold tracking-wide text-buk-500">
+          <div className="px-6 lg:px-8 pt-5">
+            <div className="mb-5 text-center text-[22px] lg:text-[34px] font-bold tracking-wide text-buk-500">
               RANKING DE LA JORNADA
             </div>
 
@@ -181,10 +177,10 @@ export default function EndModal({
           </div>
 
           {/* Botón */}
-          <div className="flex justify-center px-6 pt-6 pb-4">
+          <div className="flex justify-center px-6 lg:px-8 pt-6 pb-4">
             <button
               onClick={handleContinue}
-              className="rounded-xl bg-buk-500 px-6 py-2.5 text-sm font-semibold text-white
+              className="rounded-xl bg-buk-500 px-6 lg:px-12 py-2.5 lg:py-5 text-sm lg:text-[26px] font-semibold text-white
                          shadow-[inset_0_1px_0_rgba(255,255,255,.5),0_8px_20px_rgba(16,24,40,.15)]
                          hover:brightness-[1.05] active:scale-[0.98] transition"
             >
@@ -193,15 +189,14 @@ export default function EndModal({
           </div>
 
           {/* Logo inferior centrado */}
-          <div className=" pb-12 pt-12 grid place-items-center">
+          <div className="pb-12 pt-12 grid place-items-center">
             <img
               src="/img/logo-buk-gestion-personas.webp"
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src =
-                  "/img/logo-buk-gestion-personas.webp";
+                (e.currentTarget as HTMLImageElement).src = "/img/logo-buk-gestion-personas.webp";
               }}
               alt="BUK"
-              className=" h-[4.5rem] w-auto opacity-100"
+              className="h-[60px] lg:h-[82px] w-auto opacity-100"
               draggable={false}
             />
           </div>
@@ -212,6 +207,7 @@ export default function EndModal({
 }
 
 /* ---------- subcomponentes ---------- */
+
 function MiniInfo({
   label,
   value,
@@ -223,25 +219,15 @@ function MiniInfo({
 }) {
   return (
     <div className={`text-${align}`}>
-      <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+      <div className="text-[11px] lg:text-[18px] font-medium uppercase tracking-wide text-gray-500">
         {label}
       </div>
-      <div className="mt-0.5 text-2xl font-bold text-gray-900 truncate">
-        {value}
-      </div>
+      <div className="mt-0.5 text-2xl lg:text-[38px] font-bold text-gray-900 truncate">{value}</div>
     </div>
   );
 }
 
-function RankRow({
-  index,
-  name,
-  timeText,
-}: {
-  index: number;
-  name: string;
-  timeText: string;
-}) {
+function RankRow({ index, name, timeText }: { index: number; name: string; timeText: string }) {
   const styles = [
     { bg: "#f9b82c", text: "#1b2a5b", badge: "#dca517" }, // 1°
     { bg: "#2f4daa", text: "#ffffff", badge: "#223a80" }, // 2°
@@ -250,17 +236,17 @@ function RankRow({
 
   return (
     <div
-      className="flex items-center justify-between rounded-3xl px-4 py-3 shadow"
+      className="flex items-center justify-between rounded-3xl px-4 lg:px-6 py-3 lg:py-4 shadow"
       style={{ backgroundColor: styles.bg, color: styles.text }}
     >
       <div className="flex items-center gap-3 min-w-0">
         <TrophyIcon color={styles.text} />
-        <div className="font-extrabold truncate">{name}</div>
+        <div className="font-extrabold truncate text-sm lg:text-[26px]">{name}</div>
       </div>
       <div className="flex items-center gap-4 pl-3">
-        <span className="font-semibold opacity-90">{timeText}</span>
+        <span className="font-semibold opacity-90 text-sm lg:text-[26px]">{timeText}</span>
         <span
-          className="grid place-items-center w-8 h-8 rounded-full text-sm font-extrabold"
+          className="grid place-items-center w-8 h-8 lg:w-10 lg:h-10 rounded-full text-sm lg:text-[20px] font-extrabold"
           style={{ backgroundColor: styles.badge, color: "#fff" }}
         >
           {index + 1}
@@ -272,14 +258,7 @@ function RankRow({
 
 function TrophyIcon({ color = "#ffffff" }: { color?: string }) {
   return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-    >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M8 21h8" />
       <path d="M12 17v4" />
       <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
@@ -299,21 +278,12 @@ function msToMMSS(ms: number) {
 /* =================== Confeti continuo =================== */
 type Piece = {
   origin: "center" | "tl" | "tr" | "bl" | "br";
-  dx: number;
-  dy: number;
-  rot: number;
-  size: number;
-  shape: "rect" | "circle" | "star";
-  color: string;
-  dur: number;
-  delay: number;
+  dx: number; dy: number; rot: number; size: number;
+  shape: "rect" | "circle" | "star"; color: string; dur: number; delay: number;
 };
 
 function BurstConfetti({ active }: { active: boolean }) {
-  const COLORS = useMemo(
-    () => ["#f9b82c", "#ffcd55", "#ffe08a", "#ffd166", "#ffb703"],
-    []
-  );
+  const COLORS = useMemo(() => ["#f9b82c", "#ffcd55", "#ffe08a", "#ffd166", "#ffb703"], []);
 
   const makeBurst = (origin: Piece["origin"], amount: number): Piece[] => {
     const pieces: Piece[] = [];
@@ -332,17 +302,10 @@ function BurstConfetti({ active }: { active: boolean }) {
       const dx = Math.cos(angle) * speed;
       const dy = Math.sin(angle) * speed;
       pieces.push({
-        origin,
-        dx,
-        dy,
+        origin, dx, dy,
         rot: (Math.random() - 0.5) * 1080,
         size: 8 + Math.random() * 12,
-        shape:
-          Math.random() < 0.15
-            ? "star"
-            : Math.random() < 0.6
-            ? "rect"
-            : "circle",
+        shape: Math.random() < 0.15 ? "star" : Math.random() < 0.6 ? "rect" : "circle",
         color: COLORS[(Math.random() * COLORS.length) | 0],
         dur: 950 + Math.random() * 1200,
         delay: Math.random() * 180,
@@ -400,13 +363,9 @@ function BurstConfetti({ active }: { active: boolean }) {
             position: "absolute",
             ...pos,
             width: p.size,
-            height:
-              p.shape === "rect"
-                ? p.size * (0.5 + Math.random() * 0.9)
-                : p.size,
+            height: p.shape === "rect" ? p.size * (0.5 + Math.random() * 0.9) : p.size,
             backgroundColor: p.shape === "circle" ? "transparent" : p.color,
-            borderRadius:
-              p.shape === "circle" ? "999px" : p.shape === "rect" ? "6px" : 0,
+            borderRadius: p.shape === "circle" ? "999px" : p.shape === "rect" ? "6px" : 0,
             border: p.shape === "circle" ? `3px solid ${p.color}` : "none",
             filter: "drop-shadow(0 2px 2px rgba(0,0,0,.12))",
             animationName: "buk-burst",
@@ -420,13 +379,7 @@ function BurstConfetti({ active }: { active: boolean }) {
             ["--rot" as any]: `${p.rot}deg`,
           };
 
-          return (
-            <span
-              key={i}
-              style={style}
-              className={p.shape === "star" ? "confetti-star" : ""}
-            />
-          );
+          return <span key={i} style={style} className={p.shape === "star" ? "confetti-star" : ""} />;
         })}
       </div>
     </>

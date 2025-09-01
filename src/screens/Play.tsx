@@ -146,8 +146,8 @@ export default function Play() {
 
   // continuar luego del final → ir al formulario de registro
   const continueAfterEnd = useCallback(() => {
-    nav("/"); // lleva a Register
-  }, [nav]);
+    window.location.href = "https://bulk-game.netlify.app/";
+  }, []);
 
   // actor y panel para el modal de “Encontrado”
   const popupTarget = useMemo(
