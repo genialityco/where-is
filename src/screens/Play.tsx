@@ -1,6 +1,6 @@
 // src/screens/Play.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-//import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import type { Viewport } from "pixi-viewport";
 
 import level from "../data/level.json";
@@ -8,9 +8,9 @@ import Stage from "../game/Stage";
 import ZoomControls from "../game/ui/ZoomControls";
 import Sidebar from "../game/ui/Sidebar";
 import Countdown from "../game/ui/Countdown";
-import FoundModal from "../game/ui/FoundModal"; // ← espera panelUrl
-import EndModal from "../game/ui/EndModal";     // ← calcula Top-3 con timeMs
-import LoadingGate from "../game/ui/LoadingGate"; // 👈 NUEVO
+import FoundModal from "../game/ui/FoundModal";
+import EndModal from "../game/ui/EndModal";
+import LoadingGate from "../game/ui/LoadingGate";
 
 export type Rect = { x: number; y: number; w: number; h: number };
 export type Actor = { id: string; name: string; imageUrl: string; rect: Rect };
@@ -21,7 +21,7 @@ export default function Play() {
   // nombre del jugador (si vienes desde /register)
   const playerName = (history.state?.usr as any)?.name ?? "Jugador";
 
-  // const nav = useNavigate();  para ir al registro
+  // const nav = useNavigate();
 
   const vpRef = useRef<Viewport | null>(null);
 
@@ -107,12 +107,15 @@ export default function Play() {
 
     const focus =
       vp.input?.last?.world ??
-      (vp as Viewport).toWorld((vp as Viewport).screenWidth / 2, (vp as Viewport).screenHeight / 2);
+      (vp as Viewport).toWorld(
+        (vp as Viewport).screenWidth / 2,
+        (vp as Viewport).screenHeight / 2
+      );
 
     (vp as Viewport).setZoom(target, focus);
   }, []);
 
-  const zoomIn = useCallback(() => zoomBy(2), [zoomBy]);      // acerca x2
+  const zoomIn = useCallback(() => zoomBy(2), [zoomBy]); // acerca x2
   const zoomOut = useCallback(() => zoomBy(1 / 2), [zoomBy]); // aleja ÷2
   // ----------------------------------------------------------------
 
@@ -144,7 +147,7 @@ export default function Play() {
     }
   }, [endOpen]);
 
-  // continuar luego del final → ir al formulario de registro
+  // continuar luego del final → enlace externo (solicitado)
   const continueAfterEnd = useCallback(() => {
     window.location.href = "https://bulk-game.netlify.app/";
   }, []);
@@ -169,23 +172,26 @@ export default function Play() {
     [actors, found]
   );
 
-  /* ================= PRELOADER (LoadingGate) — mínimo cambio ================= */
-  const [gateOpen, setGateOpen] = useState(true);     // 👈 NUEVO
-  const [imgReady, setImgReady] = useState(false);    // 👈 NUEVO
-  const [countLeft, setCountLeft] = useState(5);      // 👈 NUEVO
+  /* ================= PRELOADER (LoadingGate) ================= */
+  const [gateOpen, setGateOpen] = useState(true);
+  const [imgReady, setImgReady] = useState(false);
+  const [countLeft, setCountLeft] = useState(5);
 
   // precargar imagen del mapa
-  useEffect(() => {                                     // 👈 NUEVO
+  useEffect(() => {
     const url = (level as any).background.src;
     const img = new Image();
     img.onload = () => setImgReady(true);
     img.onerror = () => setImgReady(true);
     img.src = url;
-    return () => { img.onload = null; img.onerror = null; };
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
   }, []);
 
   // cuenta regresiva 5 → 0
-  useEffect(() => {                                     // 👈 NUEVO
+  useEffect(() => {
     let left = 5;
     setCountLeft(left);
     const id = setInterval(() => {
@@ -197,10 +203,38 @@ export default function Play() {
   }, []);
 
   // cerrar compuerta cuando ambas condiciones se cumplen
-  useEffect(() => {                                     // 👈 NUEVO
+  useEffect(() => {
     if (gateOpen && imgReady && countLeft <= 0) setGateOpen(false);
   }, [gateOpen, imgReady, countLeft]);
-  /* ========================================================================== */
+  /* =========================================================== */
+
+  /* ======== REVEAL CINEMATOGRÁFICO DEL MUNDO + UI ========= */
+  const [worldEntered, setWorldEntered] = useState(false);
+  const [uiEntered, setUiEntered] = useState(false);
+
+  // cuando se cierra la compuerta, revelamos mundo y luego UI
+  useEffect(() => {
+    if (!gateOpen) {
+      // escena (mapa) entra primero
+      setWorldEntered(true);
+      // Sidebar + HUD un pelín después para jerarquía
+      const t = setTimeout(() => setUiEntered(true), 160);
+      return () => clearTimeout(t);
+    }
+  }, [gateOpen]);
+
+  // animar Sidebar con ref (es fixed, así que animamos el root via style)
+  useEffect(() => {
+    const el = sidebarRef.current;
+    if (!el) return;
+    el.style.opacity = uiEntered ? "1" : "0";
+    el.style.transform = uiEntered ? "translateX(0)" : "translateX(-8px)";
+    el.style.transition =
+      "opacity 420ms cubic-bezier(.22,1,.36,1), transform 420ms cubic-bezier(.22,1,.36,1)";
+    // hint para mejor rendimiento
+    el.style.willChange = "opacity, transform";
+  }, [uiEntered]);
+  /* ========================================================= */
 
   return (
     <div className="fixed inset-0">
@@ -215,27 +249,49 @@ export default function Play() {
         }))}
       />
 
-      <Stage
-        imageUrl={(level as any).background.src}
-        fit="cover"
-        leftOffset={leftOffset}
-        actors={actorsWithFound}
-        onViewport={handleViewport}
-        onHitActor={handleHitActor}
-      />
+      {/* Contenedor del mundo con reveal (fade + zoom-in sutil) */}
+      <div
+        className={`absolute inset-0 transition-transform duration-500 ease-out
+                    ${worldEntered ? "opacity-100" : "opacity-0"}`}
+        style={{
+          transform: worldEntered ? "scale(1) translateY(0px)" : "scale(0.985) translateY(6px)",
+          transition:
+            "transform 520ms cubic-bezier(.22,1,.36,1), opacity 420ms cubic-bezier(.22,1,.36,1)",
+          willChange: "transform, opacity",
+        }}
+      >
+        <Stage
+          imageUrl={(level as any).background.src}
+          fit="cover"
+          leftOffset={leftOffset}
+          actors={actorsWithFound}
+          onViewport={handleViewport}
+          onHitActor={handleHitActor}
+        />
+      </div>
 
-      {/* HUD */}
-      <div className="fixed left-1/2 -translate-x-1/2 top-2 z-10 text-sm text-gray-800">
+      {/* HUD (aparece ligeramente después del mundo) */}
+      <div
+        className="fixed left-1/2 -translate-x-1/2 top-2 z-10 text-sm text-gray-800"
+        style={{
+          opacity: uiEntered ? 1 : 0,
+          transform: uiEntered ? "translate(-50%, 0)" : "translate(-50%, -6px)",
+          transition:
+            "opacity 360ms cubic-bezier(.22,1,.36,1), transform 360ms cubic-bezier(.22,1,.36,1)",
+        }}
+      >
         Jugador: {playerName}
       </div>
+
       <ZoomControls onIn={zoomIn} onOut={zoomOut} />
 
       <Countdown
         seconds={TOTAL_SECONDS}
-        running={!endOpen && !foundOpen && !gateOpen /* 👈 NUEVO: pausa mientras carga */}
+        running={!endOpen && !foundOpen && !gateOpen}
         onTick={handleTick}
         onFinish={handleFinish}
-        className="fixed right-4 top-4 z-10 rounded-full bg-white/90 px-3 py-1 text-sm shadow"
+        size="xl" // ⬅️ contador más grande como pediste
+        className="fixed right-4 top-4 md:right-6 md:top-4 z-10"
       />
 
       {/* Modal encontrado (usa panelUrl) */}
@@ -256,7 +312,7 @@ export default function Play() {
       />
 
       {/* Loader con fade-in/out (bloquea interacción durante la carga) */}
-      <LoadingGate open={gateOpen} secondsLeft={countLeft} /> {/* 👈 NUEVO */}
+      <LoadingGate open={gateOpen} secondsLeft={countLeft} />
     </div>
   );
 }
