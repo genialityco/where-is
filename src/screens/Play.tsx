@@ -1,6 +1,6 @@
 // src/screens/Play.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import type { Viewport } from "pixi-viewport";
 
 import level from "../data/level.json";
@@ -21,7 +21,7 @@ export default function Play() {
   // nombre del jugador (si vienes desde /register)
   const playerName = (history.state?.usr as any)?.name ?? "Jugador";
 
-  const nav = useNavigate(); // para ir al registro
+  // const nav = useNavigate();  para ir al registro
 
   const vpRef = useRef<Viewport | null>(null);
 
