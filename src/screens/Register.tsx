@@ -27,36 +27,52 @@ export default function Register() {
     consent: false,
   });
 
-  // --- Animación de entrada (solo UI) ---
+  // Animación de entrada (UI)
   const [entered, setEntered] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setEntered(true));
     return () => cancelAnimationFrame(id);
   }, []);
-  // --------------------------------------
 
   const emailOk = useMemo(
     () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()),
     [form.email]
   );
-  //const canStart = form.name.trim() !== "" && emailOk && form.consent;
-  const almostReady = form.name.trim() !== "" && emailOk; // falta solo el consentimiento
+
+  // ✅ Todos los campos completos + email válido
+  const allFieldsOk = useMemo(() => {
+    return (
+      form.name.trim() !== "" &&
+      form.phone.trim() !== "" &&
+      form.company.trim() !== "" &&
+      form.city.trim() !== "" &&
+      form.role.trim() !== "" &&
+      form.headcount.trim() !== "" &&
+      emailOk
+    );
+  }, [form, emailOk]);
 
   function update<K extends keyof Form>(key: K, v: Form[K]) {
     setForm((f) => ({ ...f, [key]: v }));
   }
 
-  // Al tocar "Acepto": alterna consentimiento y navega si ya cumple todo
   function handleConsentClick() {
     setForm((prev) => {
       const next = { ...prev, consent: !prev.consent };
-      const ready =
+
+      const emailOkNext = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email.trim());
+      const allFieldsOkNext =
         next.name.trim() !== "" &&
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email.trim()) &&
-        next.consent;
+        next.phone.trim() !== "" &&
+        next.company.trim() !== "" &&
+        next.city.trim() !== "" &&
+        next.role.trim() !== "" &&
+        next.headcount.trim() !== "" &&
+        emailOkNext;
+
+      const ready = allFieldsOkNext && next.consent;
 
       if (ready) {
-        // localStorage.setItem("buk_form", JSON.stringify(next));
         nav("/play", { state: { name: next.name } });
       }
       return next;
@@ -64,8 +80,9 @@ export default function Register() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* === Fondo: imagen a pantalla completa === */}
+    // ⬇️ Scroll habilitado + altura dinámica + safe-area iOS
+    <div className="relative min-h-[100dvh] overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+      {/* Fondo */}
       <img
         src="/bg/FONDO_FORMULARIO_BUK.jpg"
         alt=""
@@ -73,19 +90,18 @@ export default function Register() {
         className="absolute inset-0 -z-10 h-full w-full object-cover"
         draggable={false}
       />
-      {/* Overlay para legibilidad sobre el fondo */}
       <div className="absolute inset-0 -z-10" />
-      {/* Halo/gradiente sutil (arriba-izquierda) */}
       <div className="pointer-events-none absolute inset-0 -z-10" />
 
-      {/* Contenido centrado */}
-      <div className="min-h-screen flex items-center justify-center p-6">
+      {/* Contenido: en mobile arriba; desde sm centrado */}
+      <div className="min-h-[100dvh] flex items-start sm:items-center justify-center p-4 sm:p-6">
         <div
           className={
             `relative w-full max-w-[460px] rounded-[28px] border border-sky-100 bg-white/90 shadow-xl overflow-hidden
-             transform transition-all duration-500 ease-out
-             ` +
-            (entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[.98] translate-y-3")
+             transform transition-all duration-500 ease-out ` +
+            (entered
+              ? "opacity-100 scale-100 translate-y-0"
+              : "opacity-0 scale-[.98] translate-y-3")
           }
         >
           {/* degradé interior suave */}
@@ -93,13 +109,11 @@ export default function Register() {
 
           <div className="relative p-6 sm:p-8">
             <h1 className="mb-5 text-center text-2xl sm:text-[26px] font-regular text-buk-700">
-              ¡Bienvenido al{" "}
-              <span className="text-buk-700 font-extrabold">mundo BUK</span>!
+              ¡Bienvenido al <span className="text-buk-700 font-extrabold">mundo BUK</span>!
             </h1>
 
             <p className="mt-2 px-5 text-center text-[13px] text-buk-600 leading-snug">
-              Completa tus datos para participar en nuestro juego y descubrir
-              cómo{" "}
+              Completa tus datos para participar en nuestro juego y descubrir cómo{" "}
               <span className="font-extrabold text-buk-700">
                 BUK transforma la gestión de personas
               </span>{" "}
@@ -166,21 +180,15 @@ export default function Register() {
               </p>
               <p>
                 Al enviar este formulario, autorizo a{" "}
-                <span className="font-extrabold text-buk-700">BUK</span> y su
-                equipo a tratar mis datos personales con el fin de participar en
-                el juego, enviar información relacionada con la experiencia y
-                notificaciones sobre premios y actividades de la marca, de
-                acuerdo con{" "}
-                <span className="font-extrabold text-buk-700">
-                  la Política de Privacidad de BUK.
-                </span>
+                <span className="font-extrabold text-buk-700">BUK</span> y su equipo a tratar mis datos personales con el fin de participar en el juego, enviar información relacionada con la experiencia y notificaciones sobre premios y actividades de la marca, de acuerdo con{" "}
+                <span className="font-extrabold text-buk-700">la Política de Privacidad de BUK.</span>
               </p>
             </div>
 
-            {/* Botón "Acepto" estilo píldora que navega cuando todo está OK */}
+            {/* Botón "Acepto" */}
             <ConsentButton
               checked={form.consent}
-              disabled={!almostReady && !form.consent}
+              disabled={!allFieldsOk && !form.consent}
               onClick={handleConsentClick}
             />
           </div>
@@ -220,7 +228,7 @@ function Field(props: {
   );
 }
 
-/* ---------- Botón de consentimiento tipo referencia ---------- */
+/* ---------- Botón de consentimiento ---------- */
 function ConsentButton({
   checked,
   disabled,
@@ -232,7 +240,7 @@ function ConsentButton({
 }) {
   return (
     <button
-type="button"
+      type="button"
       aria-pressed={checked}
       onClick={disabled ? undefined : onClick}
       className={`mx-auto flex items-center gap-6 rounded-[38px] px-2 py-1 transition
@@ -242,12 +250,9 @@ type="button"
                   }
                   hover:ring-sky-300`}
     >
-      {/* Texto primero */}
       <span className="text-[12px] font-extrabold tracking-wide pl-6 text-buk-500">
         Acepto
       </span>
-
-      {/* Carita al final */}
       <span
         className={`grid place-content-center w-10 h-10 rounded-full border
                     ${checked ? "border-sky-200 bg-sky-50" : "border-slate-300 bg-white"}`}

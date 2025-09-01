@@ -26,8 +26,10 @@ export default function LoadingGate({
 
   if (!visible) return null;
 
-  const mm = Math.floor(secondsLeft / 60).toString().padStart(2, "0");
-  const ss = (secondsLeft % 60).toString().padStart(2, "0");
+  // ✅ Mostrar SOLO un dígito (segundos restantes sin ceros a la izquierda)
+  const secondsText = String(Math.max(0, secondsLeft));
+
+  // mantiene el progreso basado en 5s como antes
   const pct = Math.max(0, Math.min(100, ((5 - secondsLeft) / 5) * 100));
 
   return (
@@ -55,10 +57,10 @@ export default function LoadingGate({
             <p className="mt-1 text-sm text-gray-600">Cargando mapa…</p>
           </div>
 
-          {/* contador grande */}
-          <div className="mt-6 flex items-end justify-center gap-2">
+          {/* contador grande: un solo dígito */}
+          <div className="mt-6 flex items-end justify-center">
             <div className="text-[56px] leading-none font-black text-gray-900 tabular-nums">
-              {mm}:{ss}
+              {secondsText}
             </div>
           </div>
 
