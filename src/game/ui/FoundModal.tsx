@@ -99,7 +99,7 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
                 >
                   <button
                     onClick={handleClose}
-                    className="px-8 sm:px-10 md:px-12 h-11 rounded-2xl bg-buk-500 text-white font-semibold
+                    className="px-8 sm:px-10 md:px-12 h-11 rounded-2xl bg-buk-500 text-white font-semibold text-[25px]
                                shadow-[0_8px_20px_rgba(47,77,170,.25)]
                                transition-transform duration-200
                                hover:scale-[1.02] active:scale-[0.98] focus:outline-none"
