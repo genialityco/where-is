@@ -201,7 +201,7 @@ export default function EndModal({
                   "/img/logo-buk-gestion-personas.webp";
               }}
               alt="BUK"
-              className=" h-12 w-auto opacity-100"
+              className=" h-[4.5rem] w-auto opacity-100"
               draggable={false}
             />
           </div>
