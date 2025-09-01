@@ -61,7 +61,7 @@ export default function LoadingGate({
 
           {/* contador grande: un solo dígito */}
           <div className="mt-6 lg:mt-8 flex items-end justify-center">
-            <div className="text-[56px] lg:text-[150px] leading-none font-black text-gray-900 tabular-nums">
+            <div className="text-[56px] lg:text-[150px] leading-none font-black text-buk-500 tabular-nums">
               {secondsText}
             </div>
           </div>

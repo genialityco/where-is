@@ -17,39 +17,43 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
     <div
       ref={ref}
       className="fixed left-0 top-0 bottom-0 z-10
-                 w-[132px] sm:w-[150px] md:w-[168px]
+                 w-[140px] sm:w-[160px] md:w-[188px]
                  bg-white/70 backdrop-blur-md border-r border-black/10
                  px-3 pt-3 overflow-hidden"
     >
       {/* Alto completo en columna */}
       <div className="h-full flex flex-col min-h-0">
 
-        {/* === JUGADORES (más compacto) === */}
-        <section className="basis-1/2 md:basis-[48%] max-[800px]:basis-[45%] shrink-0 flex flex-col min-h-0">
+        {/* === JUGADORES (más grandes) === */}
+        <section className="basis-[62%] md:basis-[60%] max-[800px]:basis-[58%] shrink-0 flex flex-col min-h-0">
           <div className="flex-1 rounded-2xl border-2 border-black bg-[#ECEFF7] shadow-sm p-3 flex flex-col min-h-0">
-            {/* Placa contador */}
+
+            {/* Contador */}
             <div
-              className="w-[90%] mx-auto mb-3 rounded-lg border-2 border-black bg-white px-3 py-1
-                         text-xs text-center font-semibold tracking-wide text-gray-800"
+              className="w-[92%] mx-auto mb-3 rounded-lg border-2 border-black bg-white
+                         px-3 py-1.5 text-[13px] sm:text-sm md:text-[22px]
+                         text-center font-bold tracking-wide text-gray-800"
               aria-live="polite"
               aria-atomic="true"
             >
               {label}
             </div>
 
-            {/* Tres tarjetas compactas */}
-            <div className="flex-1 flex flex-col justify-between items-stretch gap-3">
+            {/* Tres tarjetas: filas iguales y tarjeta a 100% del alto */}
+            <div className="grid grid-rows-[1fr_1fr_1fr] gap-2 h-full min-h-0">
               {items.map((it) => (
                 <div
                   key={it.id}
-                  className="relative h-20 sm:h-22 md:h-24 w-full rounded-2xl bg-white grid place-items-center
-                             ring-1 ring-black/10 shadow-sm"
+                  className="relative w-full h-full rounded-2xl bg-white grid place-items-center
+                             ring-1 ring-black/10 shadow-sm overflow-hidden"
                 >
                   {it.icon && (
                     <img
                       src={it.icon}
                       alt={it.name}
-                      className={`h-16 sm:h-18 md:h-20 w-auto object-contain select-none transition
+                      className={`w-auto object-contain select-none transition
+                                  h-[92%] sm:h-[94%] md:h-[96%]
+                                  scale-[1.12] sm:scale-[1.18] md:scale-[1.94]
                                   ${it.found ? "grayscale opacity-70" : ""}`}
                       draggable={false}
                     />
@@ -59,7 +63,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
                   {it.found && (
                     <span
                       className="absolute right-1.5 top-1.5 grid place-items-center
-                                 w-6 h-6 rounded-full bg-emerald-500 text-white shadow"
+                                 w-7 h-7 md:w-8 md:h-8 rounded-full bg-emerald-500 text-white shadow"
                       aria-label="Encontrado"
                       title="Encontrado"
                     >
@@ -75,17 +79,16 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
           </div>
         </section>
 
-        {/* === LOGO (más protagonista) === */}
+        {/* === LOGO (un poco menos espacio para priorizar jugadores) === */}
         <section
-          className="basis-1/2 md:basis-[52%] max-[800px]:basis-[55%]
+          className="basis-[38%] md:basis-[40%] max-[800px]:basis-[42%]
                      shrink-0 grid place-items-center mt-3 min-h-0"
         >
-          {/* pointer-events-none: no captura toques/drag */}
           <div className="w-full h-full bg-white/65 grid place-items-center px-2 shadow-sm rounded-2xl pointer-events-none">
             <img
               src="/img/logo-buk-vertical.webp"
               alt="BUK"
-              className="max-h-[88%] md:max-h-[92%] w-auto object-contain select-none"
+              className="max-h-[86%] md:max-h-[90%] w-auto object-contain select-none"
               draggable={false}
             />
           </div>

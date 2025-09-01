@@ -204,8 +204,8 @@ export default function Stage({
       if (debugOverlay) {
         const g = new Graphics();
         g.rect(r.x, r.y, r.w, r.h)
-          .stroke({ color: 0x22cc88, width: 2 })
-          .fill({ color: 0x22cc88, alpha: 0.1 });
+          //.stroke({ color: 0x22cc88, width: 2 }) codigo para el recuadro de los personajes
+          //.fill({ color: 0x22cc88, alpha: 0.1 });
         g.zIndex = 5;
         g.eventMode = 'none';
         layer.addChild(g);
