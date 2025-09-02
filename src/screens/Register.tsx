@@ -1,10 +1,13 @@
 // src/screens/Register.tsx
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+// Databe Firebase
+import { db } from "../lib/firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 type Form = {
-  name: string;
+  firstName: string; // ← Nombres
+  lastName: string; // ← Apellidos
   phone: string;
   email: string;
   company: string;
@@ -18,7 +21,8 @@ export default function Register() {
   const nav = useNavigate();
 
   const [form, setForm] = useState<Form>({
-    name: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
     company: "",
@@ -43,7 +47,8 @@ export default function Register() {
   const allFieldsOk = useMemo(() => {
     const phoneOk = form.phone.length === 10;
     return (
-      form.name.trim() !== "" &&
+      form.firstName.trim() !== "" &&
+      form.lastName.trim() !== "" &&
       phoneOk &&
       form.company.trim() !== "" &&
       form.city.trim() !== "" &&
@@ -56,9 +61,15 @@ export default function Register() {
   // Uppercase para campos de texto; numéricos se sanitizan donde corresponde
   function update<K extends keyof Form>(key: K, v: Form[K]) {
     setForm((f) => {
-      // forzamos mayúsculas en textos; dejamos email/phone/headcount tal cual (se tratan aparte)
       const toUpper = (s: string) => s.toUpperCase();
-      if (key === "name" || key === "company" || key === "city" || key === "role" || key === "email" ) {
+      if (
+        key === "firstName" ||
+        key === "lastName" ||
+        key === "company" ||
+        key === "city" ||
+        key === "role" ||
+        key === "email"
+      ) {
         return { ...f, [key]: toUpper(String(v)) } as Form;
       }
       return { ...f, [key]: v } as Form;
@@ -66,28 +77,56 @@ export default function Register() {
   }
 
   function handleConsentClick() {
-    setForm((prev) => {
-      const next = { ...prev, consent: !prev.consent };
+    // Construimos el siguiente estado sin usar el setter aún
+    const next = { ...form, consent: !form.consent };
 
-      const emailOkNext = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email.trim());
-      const phoneOkNext = next.phone.length === 10;
+    const emailOkNext = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email.trim());
+    const phoneOkNext = next.phone.length === 10;
+    const allFieldsOkNext =
+      next.firstName?.trim?.() !== "" &&
+      next.lastName?.trim?.() !== "" &&
+      phoneOkNext &&
+      next.company.trim() !== "" &&
+      next.city.trim() !== "" &&
+      next.role.trim() !== "" &&
+      next.headcount.trim() !== "" &&
+      emailOkNext;
 
-      const allFieldsOkNext =
-        next.name.trim() !== "" &&
-        phoneOkNext &&
-        next.company.trim() !== "" &&
-        next.city.trim() !== "" &&
-        next.role.trim() !== "" &&
-        next.headcount.trim() !== "" &&
-        emailOkNext;
+    // Actualizamos el estado (sin side-effects adentro)
+    setForm(next);
 
-      if (allFieldsOkNext && next.consent) {
-        nav("/play", { state: { name: next.name } });
-      }
-      return next;
-    });
+    // Si ya está todo válido y aceptó, hacemos efectos fuera del setter
+    if (allFieldsOkNext && next.consent) {
+      const fullName = `${next.firstName} ${next.lastName}`
+        .replace(/\s+/g, " ")
+        .trim();
+
+      // Guardar en Firestore (no bloquea la navegación)
+      addDoc(collection(db, "leads"), {
+        firstName: next.firstName,
+        lastName: next.lastName,
+        name: fullName,
+        phone: next.phone,
+        email: next.email,
+        emailLower: next.email.trim().toLowerCase(),
+        company: next.company,
+        city: next.city,
+        role: next.role,
+        headcount: Number(next.headcount) || null,
+        consent: true,
+        createdAt: serverTimestamp(),
+        source: "game",
+      }).catch((e) => console.error("Error guardando lead:", e));
+
+      // Fallback para el ranking
+      try {
+        localStorage.setItem("buk_last_player", fullName);
+      } catch {/**/}
+
+      // Ahora sí, navegamos
+      nav("/play", { state: { name: fullName } });
+    }
   }
-
   return (
     <div className="relative min-h-[100svh] min-h-[100dvh] overflow-y-auto pb-[env(safe-area-inset-bottom)]">
       <img
@@ -106,7 +145,9 @@ export default function Register() {
             `relative w-full max-w-[460px] sm:max-w-[520px] md:max-w-[560px] lg:max-w-[760px]
              rounded-[28px] lg:rounded-[32px] border border-sky-100 bg-white/90 shadow-xl overflow-hidden
              transform transition-all duration-500 ease-out ` +
-            (entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[.98] translate-y-3")
+            (entered
+              ? "opacity-100 scale-100 translate-y-0"
+              : "opacity-0 scale-[.98] translate-y-3")
           }
         >
           <div className="absolute inset-0 bg-gradient-to-r from-sky-50/90 via-white/80 to-white pointer-events-none" />
@@ -118,7 +159,8 @@ export default function Register() {
             </h1>
 
             <p className="mt-2 px-2 sm:px-5 text-center text-[13px] lg:text-[24px] text-buk-600 leading-snug">
-              Completa tus datos para participar en nuestro juego y descubrir cómo{" "}
+              Completa tus datos para participar en nuestro juego y descubrir
+              cómo{" "}
               <span className="font-extrabold text-buk-700">
                 BUK transforma la gestión de personas
               </span>{" "}
@@ -131,10 +173,16 @@ export default function Register() {
 
             <div className="space-y-3 lg:space-y-4">
               <Field
-                placeholder="Nombre Completo"
+                placeholder="Nombres"
                 icon={<UserIcon />}
-                value={form.name}
-                onChange={(v) => update("name", v)}
+                value={form.firstName}
+                onChange={(v) => update("firstName", v)}
+              />
+              <Field
+                placeholder="Apellidos"
+                icon={<UserIcon />}
+                value={form.lastName}
+                onChange={(v) => update("lastName", v)}
               />
               <Field
                 placeholder="Celular"
@@ -142,7 +190,9 @@ export default function Register() {
                 inputMode="tel"
                 value={form.phone}
                 // Solo números, límite 10 dígitos
-                onChange={(v) => update("phone", v.replace(/\D+/g, "").slice(0, 10))}
+                onChange={(v) =>
+                  update("phone", v.replace(/\D+/g, "").slice(0, 10))
+                }
                 maxLength={10}
                 invalid={form.phone.length > 0 && form.phone.length !== 10}
               />
@@ -187,10 +237,14 @@ export default function Register() {
               </p>
               <p>
                 Al enviar este formulario, autorizo a{" "}
-                <span className="font-extrabold text-buk-700">BUK</span> y su equipo a tratar mis datos
-                personales con el fin de participar en el juego, enviar información relacionada con
-                la experiencia y notificaciones sobre premios y actividades de la marca, de acuerdo con{" "}
-                <span className="font-extrabold text-buk-700">la Política de Privacidad de BUK.</span>
+                <span className="font-extrabold text-buk-700">BUK</span> y su
+                equipo a tratar mis datos personales con el fin de participar en
+                el juego, enviar información relacionada con la experiencia y
+                notificaciones sobre premios y actividades de la marca, de
+                acuerdo con{" "}
+                <span className="font-extrabold text-buk-700">
+                  la Política de Privacidad de BUK.
+                </span>
               </p>
             </div>
 
@@ -217,7 +271,8 @@ function Field(props: {
   invalid?: boolean;
   maxLength?: number;
 }) {
-  const { placeholder, icon, value, onChange, inputMode, invalid, maxLength } = props;
+  const { placeholder, icon, value, onChange, inputMode, invalid, maxLength } =
+    props;
   return (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-buk-500">
@@ -257,7 +312,11 @@ function ConsentButton({
       onClick={disabled ? undefined : onClick}
       className={`mx-auto flex items-center gap-6 rounded-[38px] px-2 py-1 lg:px-6 lg:py-3 transition
                   shadow-[inset_0_1px_0_rgba(255,255,255,.6),0_8px_20px_rgba(16,24,40,.06)]
-                  ring-1 ${checked ? "ring-sky-300 bg-white" : "ring-slate-200 bg-[#ECEFF7]"}
+                  ring-1 ${
+                    checked
+                      ? "ring-sky-300 bg-white"
+                      : "ring-slate-200 bg-[#ECEFF7]"
+                  }
                   hover:ring-sky-300`}
     >
       <span className="text-[12px] lg:text-[24px] font-extrabold tracking-wide pl-6 text-buk-500">
@@ -265,7 +324,11 @@ function ConsentButton({
       </span>
       <span
         className={`grid place-content-center w-10 h-10 lg:w-14 lg:h-14 rounded-full border
-                    ${checked ? "border-sky-200 bg-sky-50" : "border-slate-300 bg-white"}`}
+                    ${
+                      checked
+                        ? "border-sky-200 bg-sky-50"
+                        : "border-slate-300 bg-white"
+                    }`}
       >
         <img
           src="/img/cara-buk.webp"
@@ -281,7 +344,14 @@ function ConsentButton({
 /* ---------- Inline icons ---------- */
 function UserIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
       <path d="M20 21a8 8 0 1 0-16 0" />
       <circle cx="12" cy="7" r="4" />
     </svg>
@@ -289,14 +359,28 @@ function UserIcon() {
 }
 function PhoneIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-      <path d="M22 16.92V19a2 2 0 0 1-2.18 2A19.78 19.78 0 0 1 3 5.18 2 2 0 0 1 5 3h2.09a1 1 0 0 1 1 .75l1 4a1 1 0 0 1-.27.95L7.91 10.1a16 16 0 0 0 6 6l1.4-1.87a1 1 0 0 1 .95-.27l4 1a1 1 0 0 1 .74 1z"/>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
+      <path d="M22 16.92V19a2 2 0 0 1-2.18 2A19.78 19.78 0 0 1 3 5.18 2 2 0 0 1 5 3h2.09a1 1 0 0 1 1 .75l1 4a1 1 0 0 1-.27.95L7.91 10.1a16 16 0 0 0 6 6l1.4-1.87a1 1 0 0 1 .95-.27l4 1a1 1 0 0 1 .74 1z" />
     </svg>
   );
 }
 function MailIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
       <path d="M4 4h16v16H4z" />
       <path d="m22 6-10 7L2 6" />
     </svg>
@@ -304,7 +388,14 @@ function MailIcon() {
 }
 function BuildingIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
       <path d="M3 21h18" />
       <path d="M6 21V8h12v13" />
       <path d="M9 21V4h6v17" />
@@ -313,7 +404,14 @@ function BuildingIcon() {
 }
 function PinIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
       <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z" />
       <circle cx="12" cy="11" r="2.5" />
     </svg>
@@ -321,7 +419,14 @@ function PinIcon() {
 }
 function BriefcaseIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
       <path d="M3 7h18v13H3z" />
       <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <path d="M3 12h18" />
@@ -330,7 +435,14 @@ function BriefcaseIcon() {
 }
 function UsersIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
       <circle cx="9" cy="7" r="3" />
       <path d="M2 21a7 7 0 0 1 14 0" />
       <path d="M22 21a6 6 0 0 0-9-5" />

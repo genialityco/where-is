@@ -176,6 +176,7 @@ export default function Play() {
   const [gateOpen, setGateOpen] = useState(true);
   const [imgReady, setImgReady] = useState(false);
   const [countLeft, setCountLeft] = useState(5);
+  
 
   // precargar imagen del mapa
   useEffect(() => {
