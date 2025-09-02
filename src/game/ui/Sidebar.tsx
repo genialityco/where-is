@@ -53,7 +53,7 @@ const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(({ items, countLabel },
                       alt={it.name}
                       className={`w-auto object-contain select-none transition
                                   h-[92%] sm:h-[94%] md:h-[96%]
-                                  scale-[1.12] sm:scale-[1.18] md:scale-[1.75]
+                                  scale-[1.12] sm:scale-[1.18] md:scale-[1.65]
                                   ${it.found ? "grayscale opacity-70" : ""}`}
                       draggable={false}
                     />
