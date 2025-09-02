@@ -21,7 +21,7 @@ const app = initializeApp(cfg);
 // ✅ Fuerza long-polling (mejor compatibilidad con redes / proxys / adblock)
 export const db = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
-  useFetchStreams: false,
+  //useFetchStreams: false,
 });
 
 // (opcional) debug mínimo en consola para comprobar que tomó el proyecto correcto
