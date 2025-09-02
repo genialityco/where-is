@@ -6,7 +6,7 @@
       "name": "Jefe de Administración",
       "sprite": "/chars/Jefe_administracion_1.png",
       "icon": "/chars/Jefe_administracion_1.png",
-      "panel": "/chars/JEFE_administracion_MENSAJES_1.png",
+      "panel": "/chars/JEFE_administracion_MENSAJES_1_1.png",
       "positions": [
         {
           "hitbox": {
@@ -39,7 +39,7 @@
       "name": "Jefe de Desarrollo Organizacional",
       "sprite": "/chars/Jefe_desarrollo_organizacional_1.png",
       "icon": "/chars/Jefe_desarrollo_organizacional_1.png",
-      "panel": "/chars/JEFE_desarrollo_MENSAJES_1_1.png",
+      "panel": "/chars/JEFE_desarrollo_MENSAJES_1.png",
       "positions": [
         {
           "hitbox": {

@@ -2,6 +2,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 type Form = {
   name: string;
   phone: string;
@@ -38,10 +39,12 @@ export default function Register() {
     [form.email]
   );
 
+  // ✅ Todos los campos completos + email válido + teléfono de 10 dígitos
   const allFieldsOk = useMemo(() => {
+    const phoneOk = form.phone.length === 10;
     return (
       form.name.trim() !== "" &&
-      form.phone.trim() !== "" &&
+      phoneOk &&
       form.company.trim() !== "" &&
       form.city.trim() !== "" &&
       form.role.trim() !== "" &&
@@ -50,17 +53,28 @@ export default function Register() {
     );
   }, [form, emailOk]);
 
+  // Uppercase para campos de texto; numéricos se sanitizan donde corresponde
   function update<K extends keyof Form>(key: K, v: Form[K]) {
-    setForm((f) => ({ ...f, [key]: v }));
+    setForm((f) => {
+      // forzamos mayúsculas en textos; dejamos email/phone/headcount tal cual (se tratan aparte)
+      const toUpper = (s: string) => s.toUpperCase();
+      if (key === "name" || key === "company" || key === "city" || key === "role" || key === "email" ) {
+        return { ...f, [key]: toUpper(String(v)) } as Form;
+      }
+      return { ...f, [key]: v } as Form;
+    });
   }
 
   function handleConsentClick() {
     setForm((prev) => {
       const next = { ...prev, consent: !prev.consent };
+
       const emailOkNext = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email.trim());
+      const phoneOkNext = next.phone.length === 10;
+
       const allFieldsOkNext =
         next.name.trim() !== "" &&
-        next.phone.trim() !== "" &&
+        phoneOkNext &&
         next.company.trim() !== "" &&
         next.city.trim() !== "" &&
         next.role.trim() !== "" &&
@@ -127,7 +141,10 @@ export default function Register() {
                 icon={<PhoneIcon />}
                 inputMode="tel"
                 value={form.phone}
-                onChange={(v) => update("phone", v)}
+                // Solo números, límite 10 dígitos
+                onChange={(v) => update("phone", v.replace(/\D+/g, "").slice(0, 10))}
+                maxLength={10}
+                invalid={form.phone.length > 0 && form.phone.length !== 10}
               />
               <Field
                 placeholder="Correo"
@@ -198,8 +215,9 @@ function Field(props: {
   onChange: (v: string) => void;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   invalid?: boolean;
+  maxLength?: number;
 }) {
-  const { placeholder, icon, value, onChange, inputMode, invalid } = props;
+  const { placeholder, icon, value, onChange, inputMode, invalid, maxLength } = props;
   return (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-buk-500">
@@ -210,8 +228,10 @@ function Field(props: {
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         inputMode={inputMode}
+        maxLength={maxLength}
+        autoComplete={inputMode === "tel" ? "tel" : undefined}
         className={`w-full pl-11 pr-4 py-3.5 lg:py-5 rounded-2xl
-                    bg-[#ECEFF7] text-buk-500 lg:text-[22px] placeholder-buk-500
+                    bg-[#ECEFF7] text-buk-500 lg:text-[22px] placeholder-buk-500 placeholder:normal-case
                     ring-1 ring-sky-100 shadow-inner outline-none
                     focus:bg-white focus:ring-2 focus:ring-buk-500
                     ${invalid ? "ring-2 ring-rose-400 bg-rose-50" : ""}`}
