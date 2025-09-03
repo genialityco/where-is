@@ -1,4 +1,6 @@
 // src/screens/Play.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import type { Viewport } from "pixi-viewport";

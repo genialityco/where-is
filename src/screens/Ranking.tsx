@@ -1,4 +1,6 @@
 // src/screens/Ranking.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { clearLeaderboard, loadLeaderboard, mmss, type LeaderboardEntry } from '../services/leaderboard';

@@ -1,0 +1,83 @@
+// src/screem/leads.tsx
+import React, { useEffect, useMemo, useState } from "react";
+import { collection, onSnapshot, orderBy, query, limit } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { utils, writeFile } from "xlsx";
+import { flatten, toCell } from "../utils/flatten";
+
+// Si no tienes este tipo, puedes quitarlo y usar `any`
+type Lead = {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  source?: string;
+  createdAt?: any; // Firestore Timestamp | Date | string
+  [k: string]: any;
+};
+
+export default function LeadsPage() {
+  const [rows, setRows] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    const col = collection(db, "leads");
+    const qq = query(col, orderBy("createdAt", "desc"), limit(1000));
+    const unsub = onSnapshot(qq, (snap) => {
+      const data: Lead[] = [];
+      snap.forEach((doc) => data.push({ id: doc.id, ...doc.data() } as Lead));
+      setRows(data);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return rows;
+    return rows.filter((r) => JSON.stringify(r).toLowerCase().includes(s));
+  }, [rows, q]);
+
+  function toDateStr(v: any) {
+    if (!v) return "";
+    if (v.toDate) return v.toDate().toLocaleString();
+    if (v instanceof Date) return v.toLocaleString();
+    return String(v);
+  }
+
+  function exportXLSX() {
+    if (!filtered.length) return;
+
+    // aplanamos para columnas dinámicas
+    const flats = filtered.map((r) => {
+      const { id, ...rest } = r;
+      const flat = flatten(rest);
+      return { id, ...flat } as Record<string, unknown>;
+    });
+
+    const baseOrder = ["id", "name", "email", "phone", "source", "createdAt"];
+    const keys = new Set<string>(baseOrder);
+    flats.forEach((f) => Object.keys(f).forEach((k) => keys.add(k)));
+    const headers = Array.from(keys);
+
+    const aoa: any[][] = [headers];
+    for (const f of flats) {
+      const row = headers.map((h) => toCell((f as any)[h]));
+      aoa.push(row);
+    }
+
+    const ws = utils.aoa_to_sheet(aoa);
+
+    // anchos de columna aproximados
+    const colWidths = headers.map((h, i) => {
+      const maxLen = Math.max(
+        h.length,
+        ...aoa.slice(1).map((r) => (r[i] == null ? 0 : String(r[i]).length))
+      );
+      return { wch: Math.min(Math.max(maxLen + 2, 10), 60) };
+    });
+    (ws as any)["!cols"] = colWidths;
+
+    const wb = utils.book_new();
+    utils.book_a_

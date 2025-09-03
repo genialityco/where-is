@@ -15,6 +15,15 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
   const [visible, setVisible] = useState(open);
   const [entered, setEntered] = useState(false);
 
+  // 🔁 clave para forzar remount del <img> (Punto 3)
+  const [imgKey, setImgKey] = useState(0);
+  useEffect(() => {
+    if (open && panelUrl) {
+      // cada vez que se abre el modal con un panel, remonta el <img>
+      setImgKey((k) => k + 1);
+    }
+  }, [open, panelUrl]);
+
   // botón aparece a los 6s
   useEffect(() => {
     if (!open) return;
@@ -78,8 +87,11 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
             // 👇 Contenedor con animación continua (float + tilt + breathing)
             <div className="relative inline-block idle-bounce">
               <img
+                key={imgKey}                 /* ← forzamos remount */
                 src={panelUrl}
                 alt=""
+                decoding="async"             /* sugerencia de decodificación */
+                loading="eager"              /* pinta ASAP (ya precargamos en Play) */
                 className="w-[560px] sm:w-[640px] md:w-[720px] lg:w-[880px] xl:w-[960px] h-auto
                            drop-shadow-[0_24px_50px_rgba(0,0,0,.35)]
                            select-none pointer-events-none
@@ -136,8 +148,8 @@ export default function FoundModal({ open, actorName, panelUrl, onClose }: Props
         }
         .idle-bounce {
           --bob: clamp(36px, 5.6vw, 80px);     /* amplitud vertical */
-          --tilt: -0.6deg;                    /* inclinación sutil */
-          --breath: 1.012;                    /* “respiración” */
+          --tilt: -0.6deg;                     /* inclinación sutil */
+          --breath: 1.012;                     /* “respiración” */
           animation: floatAlive 2.2s 1s ease-in-out infinite alternate;
           will-change: transform;
         }

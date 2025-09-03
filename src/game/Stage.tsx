@@ -1,4 +1,6 @@
 // src/game/Stage.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useRef, useState } from 'react';
 import { Application, Assets, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
@@ -180,7 +182,7 @@ export default function Stage({
           app.stage.removeChildren();
           app.destroy();
         }
-      } catch {}
+      } catch {/* */}
       appRef.current = null;
       viewportRef.current = null;
       spriteLayerRef.current = null;

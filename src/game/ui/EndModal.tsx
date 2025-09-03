@@ -1,4 +1,6 @@
 // src/game/ui/EndModal.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 
 type Props = {
@@ -52,7 +54,7 @@ export default function EndModal({
     const save = (list: LBItem[]) => {
       try {
         localStorage.setItem(dayKey, JSON.stringify(list));
-      } catch {}
+      } catch {/* */}
     };
 
     const list = load();
