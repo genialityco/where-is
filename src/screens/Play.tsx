@@ -14,10 +14,28 @@ import FoundModal from "../game/ui/FoundModal";
 import EndModal from "../game/ui/EndModal";
 import LoadingGate from "../game/ui/LoadingGate";
 
+// 🆕 guarda score diario en Firestore (con fallback local si no hay red)
+import { saveDailyScore } from "../lib/ranking";
+
 export type Rect = { x: number; y: number; w: number; h: number };
 export type Actor = { id: string; name: string; imageUrl: string; rect: Rect };
 
 const TOTAL_SECONDS = 180;
+// 🆕 gana al encontrar 3 (o todos si hay menos de 3)
+const TARGET_WIN_COUNT = 3;
+
+// 🆕 Lee datos del jugador de history.state y/o localStorage (respaldo)
+function getPlayerInfo() {
+  const st = (history.state?.usr as any) || {};
+  const ls = {
+    name: localStorage.getItem("player_name") || "",
+    email: localStorage.getItem("player_email") || "",
+  };
+  return {
+    name: st.name ?? ls.name ?? "Jugador",
+    email: st.email ?? ls.email ?? null,
+  };
+}
 
 export default function Play() {
   // nombre del jugador (si vienes desde /register)
@@ -86,6 +104,9 @@ export default function Play() {
   const [timeLeft, setTimeLeft] = useState(TOTAL_SECONDS); // en segundos
   const timeMs = (TOTAL_SECONDS - Math.max(0, timeLeft)) * 1000;
 
+  // 🆕 guard para no guardar dos veces
+  const [hasSaved, setHasSaved] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -134,11 +155,23 @@ export default function Play() {
   // cerrar modal encontrado y quizá terminar partida
   const closeFoundModal = useCallback(() => {
     setFoundOpen(false);
-    if (foundCount >= actors.length) {
-      setEndTitle("¡Encontraste a todos!");
+
+    // 🆕 guardar y terminar cuando alcance 3 (o total si hay menos)
+    const WIN_COUNT = Math.min(TARGET_WIN_COUNT, actors.length);
+    if (foundCount >= WIN_COUNT) {
+      if (!hasSaved) {
+        const info = getPlayerInfo();
+        const msNow = Math.max(0, (TOTAL_SECONDS - Math.max(0, timeLeft)) * 1000);
+        saveDailyScore({
+          name: info.name || "Jugador",
+          email: info.email || null,
+          timeMs: msNow,
+        }).finally(() => setHasSaved(true));
+      }
+      setEndTitle(WIN_COUNT === actors.length ? "¡Encontraste a todos!" : "¡Reto completado!");
       setEndOpen(true);
     }
-  }, [foundCount, actors.length]);
+  }, [foundCount, actors.length, timeLeft, hasSaved]);
 
   // countdown callbacks
   const handleTick = useCallback((left: number) => setTimeLeft(left), []);
@@ -146,6 +179,7 @@ export default function Play() {
     if (!endOpen) {
       setEndTitle("Tiempo agotado");
       setEndOpen(true);
+      // NO guardamos ranking si se acaba el tiempo
     }
   }, [endOpen]);
 
@@ -178,7 +212,6 @@ export default function Play() {
   const [gateOpen, setGateOpen] = useState(true);
   const [imgReady, setImgReady] = useState(false);
   const [countLeft, setCountLeft] = useState(5);
-  
 
   // precargar imagen del mapa
   useEffect(() => {
@@ -305,7 +338,7 @@ export default function Play() {
         onClose={closeFoundModal}
       />
 
-      {/* Modal final: Top-3 interno (pasamos timeMs) */}
+      {/* Modal final */}
       <EndModal
         open={endOpen}
         title={endTitle}
